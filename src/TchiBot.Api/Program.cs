@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using TchiBot.Api;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,10 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+#if DEBUG
+app.Urls.Add("http://192.168.178.25:80");
+#endif
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -18,7 +23,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/tarifstatus", async () =>
+app.MapGet("/status", async () =>
 {
     var utils = new TchiBotUtils();
     var clientSessionId = utils.GetClientSessionId();
@@ -30,9 +35,19 @@ app.MapGet("/tarifstatus", async () =>
 
     var securityToken = await utils.GetSecurityTokenAsync(encryptedUsername, encryptedPassword, clientSessionId);
 
-    return await utils.GetTariffStatusList(securityToken, clientSessionId);
+    var tarifStatus = await utils.GetTariffStatusList(securityToken, clientSessionId);
+    var tarifInfo = await utils.GetTariffInfoSummary(securityToken, clientSessionId);
+
+    return new
+    {
+        RemainingData = tarifStatus.UsedPercent,
+        ExactRemainingData = tarifStatus.CurrentValue,
+        ExtendsOn = tarifInfo.ExtendsOn,
+        IsThrottled = tarifStatus.IsThrottled
+    };
+
 })
-.WithName("GetTarifStatus")
+.WithName("GetStatus")
 .WithOpenApi(); ;
 
 app.Run();

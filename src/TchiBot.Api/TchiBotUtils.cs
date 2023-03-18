@@ -5,6 +5,9 @@ using System.Text;
 using System.Text.Json;
 using TchiBot.Api.Models;
 using Org.BouncyCastle.Security;
+using Microsoft.AspNetCore.Http.HttpResults;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Linq;
 
 namespace TchiBot.Api;
 
@@ -91,10 +94,11 @@ public class TchiBotUtils
 
     public async Task<TariffStatusBeanDto> GetTariffStatusList(string securityToken, string clientSessionId)
     {
-        
+
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Post, "https://tchibo-mobil.de/cfapi/ws/rest/customerfrontendapi/getTariffStatusList");
         var content = new StringContent($"-----------------------------403935067436909090372268398137  \r\nContent-Disposition: form-data; name=\"serviceInfo\"; filename=\"serviceInfo\"\r\nContent-Type: application/json\r\n\r\n{{\r\n    \"sessionIDClient\": \"{clientSessionId}\",  \r\n    \"securityTokenClient\": \"{securityToken}\",\r\n    \"targetMandatID\": 1,\r\n    \"requestStartTime\": 1658420506888,\r\n    \"lastRequestTime\": 1658420506888,  \r\n    \"callPath\": \"https://tchiboweb.tchibo-mobil.de/dashboard\",\r\n    \"callReference\": \"TariffService\"\r\n}}\r\n-----------------------------403935067436909090372268398137--");
+
         request.Content = content;
 
         request.Content.Headers.Remove("Content-Type");
@@ -105,6 +109,20 @@ public class TchiBotUtils
 
         var tariffStatus = await JsonSerializer.DeserializeAsync<TariffStatusDto>(await response.Content.ReadAsStreamAsync());
         return tariffStatus.TariffStatusBeans[0];
-       
+    }
+
+    public async Task<TariffInfoBeanDto> GetTariffInfoSummary(string securityToken, string clientSessionId)
+    {
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://tchibo-mobil.de/cfapi/ws/rest/customerfrontendapi/getTariffInfoSummary");
+        var content = new StringContent($"-----------------------------428526505915936047941648204712  \r\nContent-Disposition: form-data; name=\"serviceInfo\"; filename=\"serviceInfo\"\r\nContent-Type: application/json\r\n\r\n{{\r\n    \"sessionIDClient\": \"{clientSessionId}\",  \r\n    \"securityTokenClient\": \"{securityToken}\",\r\n    \"targetMandatID\": 1,\r\n    \"requestStartTime\": 1679158927606,\r\n    \"lastRequestTime\": 1679158927606,  \r\n    \"callPath\": \"https://tchiboweb.tchibo-mobil.de/dashboard\",\r\n    \"callReference\": \"TariffService\"\r\n}}\r\n-----------------------------428526505915936047941648204712--");
+        request.Content = content;
+        request.Content.Headers.Remove("Content-Type");
+        request.Content.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=---------------------------428526505915936047941648204712");
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+
+        var tariffStatus = await JsonSerializer.DeserializeAsync<TariffInfoDto>(await response.Content.ReadAsStreamAsync());
+        return tariffStatus.TariffInfoBean;
     }
 }
