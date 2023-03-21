@@ -48,6 +48,6 @@ app.MapGet("/status", async () =>
 
 })
 .WithName("GetStatus")
-.WithOpenApi(); ;
+.WithOpenApi();
 
 app.Run();
