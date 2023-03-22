@@ -1,0 +1,12 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+version: '3.4'
+
+services:
+  tchibotapi:
+    image: seppamsl/tchibot-api
+    ports:
+      - 80:5010
+    environment:
+      - TCHIBO__USERNAME=${TCHIBO__USERNAME}
+      - TCHIBO__PASSWORD=${TCHIBO__PASSWORD}
