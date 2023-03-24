@@ -41,7 +41,7 @@ app.MapGet("/status", async () =>
     return new
     {
         RemainingData = tarifStatus.UsedPercent,
-        ExactRemainingData = tarifStatus.CurrentValue,
+        RemainingDataInMb = tarifStatus.CurrentValue,
         ExtendsOn = tarifInfo.ExtendsOn,
         IsThrottled = tarifStatus.IsThrottled
     };
